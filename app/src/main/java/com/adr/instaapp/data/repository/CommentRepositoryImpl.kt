@@ -4,7 +4,7 @@ import com.adr.instaapp.data.datasource.DummyDataSource
 import com.adr.instaapp.domain.model.Comment
 import com.adr.instaapp.domain.repository.CommentRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.map
 import java.util.UUID
 
@@ -12,7 +12,10 @@ class CommentRepositoryImpl(
     private val dataSource: DummyDataSource
 ) : CommentRepository {
 
-    private val _commentsFlow = MutableStateFlow<Map<String, List<Comment>>>(emptyMap())
+    private val _commentsFlow = MutableSharedFlow<Map<String, List<Comment>>>(
+        replay = 1,
+        onBufferOverflow = kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
+    )
 
     init {
         refreshComments()
@@ -59,9 +62,10 @@ class CommentRepositoryImpl(
         return try {
             dataSource.simulateNetworkDelay()
 
-            val commentsMap = _commentsFlow.value
-            val commentToDelete = commentsMap.values.flatten()
-                .find { it.id == commentId && it.isCurrentUserComment }
+            // Get current comments from data source directly
+            val allComments = dataSource.getAllComments()
+            val commentToDelete = allComments
+                .find { comment -> comment.id == commentId && comment.isCurrentUserComment }
 
             if (commentToDelete == null) {
                 return Result.failure(Exception("Comment not found or no permission to delete"))
@@ -83,9 +87,10 @@ class CommentRepositoryImpl(
         return try {
             dataSource.simulateNetworkDelay()
 
-            val commentsMap = _commentsFlow.value
-            val commentToUpdate = commentsMap.values.flatten()
-                .find { it.id == commentId && it.isCurrentUserComment }
+            // Get current comments from data source directly
+            val allComments = dataSource.getAllComments()
+            val commentToUpdate = allComments
+                .find { comment -> comment.id == commentId && comment.isCurrentUserComment }
 
             if (commentToUpdate == null) {
                 return Result.failure(Exception("Comment not found or no permission to edit"))
@@ -128,6 +133,6 @@ class CommentRepositoryImpl(
             commentsMap[post.id] = organizedComments
         }
 
-        _commentsFlow.value = commentsMap
+        _commentsFlow.tryEmit(commentsMap)
     }
 }

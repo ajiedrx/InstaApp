@@ -1,11 +1,14 @@
 package com.adr.instaapp.di
 
+import com.adr.instaapp.domain.usecase.CreateCommentUseCase
+import com.adr.instaapp.domain.usecase.DeleteCommentUseCase
 import com.adr.instaapp.domain.usecase.GetCommentsUseCase
 import com.adr.instaapp.domain.usecase.GetCurrentUserUseCase
 import com.adr.instaapp.domain.usecase.GetFeedPostsUseCase
 import com.adr.instaapp.domain.usecase.GetUserPostsUseCase
 import com.adr.instaapp.domain.usecase.LikePostUseCase
 import com.adr.instaapp.domain.usecase.LoginUseCase
+import com.adr.instaapp.domain.usecase.UpdateCommentUseCase
 import org.koin.dsl.module
 
 val domainModule = module {
@@ -19,4 +22,7 @@ val domainModule = module {
     single { LikePostUseCase(get()) }
     single { GetUserPostsUseCase(get()) }
     single { GetCommentsUseCase(get()) }
+    single { CreateCommentUseCase(get()) }
+    single { DeleteCommentUseCase(get()) }
+    single { UpdateCommentUseCase(get()) }
 }

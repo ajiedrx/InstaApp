@@ -166,6 +166,10 @@ class DummyDataSource {
         return comments[postId]?.toList() ?: emptyList()
     }
 
+    fun getAllComments(): List<Comment> {
+        return comments.values.flatten()
+    }
+
     fun addComment(comment: Comment) {
         val postComments = comments.getOrPut(comment.postId) { mutableListOf() }
         postComments.add(comment)
