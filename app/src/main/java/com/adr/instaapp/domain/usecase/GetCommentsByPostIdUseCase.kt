@@ -3,6 +3,7 @@ package com.adr.instaapp.domain.usecase
 import com.adr.instaapp.domain.base.UseCase
 import com.adr.instaapp.domain.model.Comment
 import com.adr.instaapp.domain.repository.CommentRepository
+import kotlinx.coroutines.flow.first
 
 class GetCommentsByPostIdUseCase(
     private val commentRepository: CommentRepository
@@ -10,9 +11,8 @@ class GetCommentsByPostIdUseCase(
 
     override suspend fun invoke(parameters: String): Result<List<Comment>> {
         return try {
-            // For now, return empty list since we're using a Flow in the actual implementation
-            // In a real app, this would be a single call to get comments
-            Result.success(emptyList())
+            val comments = commentRepository.getCommentsForPost(parameters).first()
+            Result.success(comments)
         } catch (e: Exception) {
             Result.failure(e)
         }
