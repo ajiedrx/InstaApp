@@ -30,8 +30,7 @@ val presentationModule = module {
         CommentViewModel(
             getCommentsUseCase = get(),
             createCommentUseCase = get(),
-            deleteCommentUseCase = get(),
-            updateCommentUseCase = get()
+            deleteCommentUseCase = get()
         )
     }
     viewModel { PostCreationViewModel(get()) }
@@ -46,7 +45,4 @@ val presentationModule = module {
             deleteCommentUseCase = get()
         )
     }
-    
-    // Presentation layer dependencies will be added here
-    // Additional ViewModels, UI components, etc.
 }

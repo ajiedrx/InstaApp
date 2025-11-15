@@ -7,7 +7,6 @@ import com.adr.instaapp.domain.usecase.CreateCommentParams
 import com.adr.instaapp.domain.usecase.CreateCommentUseCase
 import com.adr.instaapp.domain.usecase.DeleteCommentUseCase
 import com.adr.instaapp.domain.usecase.GetCommentsUseCase
-import com.adr.instaapp.domain.usecase.UpdateCommentUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,8 +15,7 @@ import kotlinx.coroutines.launch
 class CommentViewModel(
     private val getCommentsUseCase: GetCommentsUseCase,
     private val createCommentUseCase: CreateCommentUseCase,
-    private val deleteCommentUseCase: DeleteCommentUseCase,
-    private val updateCommentUseCase: UpdateCommentUseCase
+    private val deleteCommentUseCase: DeleteCommentUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CommentUiState())
@@ -44,50 +42,6 @@ class CommentViewModel(
         }
     }
 
-    fun createComment(postId: String, content: String, parentId: String? = null) {
-        if (content.isBlank()) {
-            _uiState.value = _uiState.value.copy(error = "Comment cannot be empty")
-            return
-        }
-
-        viewModelScope.launch {
-            try {
-                _uiState.value = _uiState.value.copy(isCreatingComment = true)
-
-                val result = createCommentUseCase(
-                    CreateCommentParams(
-                        postId = postId,
-                        content = content.trim(),
-                        parentId = parentId
-                    )
-                )
-
-                result.fold(
-                    onSuccess = { newComment ->
-                        val currentComments = _uiState.value.comments.toMutableList()
-                        currentComments.add(newComment)
-                        _uiState.value = _uiState.value.copy(
-                            isCreatingComment = false,
-                            comments = currentComments,
-                            newCommentContent = "",
-                            error = null
-                        )
-                    },
-                    onFailure = { error ->
-                        _uiState.value = _uiState.value.copy(
-                            isCreatingComment = false,
-                            error = error.message ?: "Failed to create comment"
-                        )
-                    }
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isCreatingComment = false,
-                    error = e.message ?: "Failed to create comment"
-                )
-            }
-        }
-    }
 
     fun deleteComment(commentId: String) {
         viewModelScope.launch {
@@ -129,8 +83,72 @@ class CommentViewModel(
         _uiState.value = _uiState.value.copy(newCommentContent = content)
     }
 
-    fun clearError() {
-        _uiState.value = _uiState.value.copy(error = null)
+    fun setReplyingComment(commentId: String, authorUsername: String) {
+        _uiState.value = _uiState.value.copy(
+            replyingToCommentId = commentId,
+            replyingToUsername = authorUsername,
+            newCommentContent = ""
+        )
+    }
+
+    fun clearReplyState() {
+        _uiState.value = _uiState.value.copy(
+            replyingToCommentId = null,
+            replyingToUsername = null,
+            newCommentContent = ""
+        )
+    }
+
+    fun createComment(postId: String, content: String) {
+        if (content.isBlank()) {
+            _uiState.value = _uiState.value.copy(error = "Comment cannot be empty")
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isCreatingComment = true)
+
+                val result = createCommentUseCase(
+                    CreateCommentParams(
+                        postId = postId,
+                        content = content.trim(),
+                        parentId = _uiState.value.replyingToCommentId
+                    )
+                )
+
+                result.fold(
+                    onSuccess = { newComment ->
+                        val currentComments = _uiState.value.comments.toMutableList()
+
+                        if (newComment.parentId != null) {
+                            loadComments(postId)
+                        } else {
+                            currentComments.add(newComment)
+                            _uiState.value = _uiState.value.copy(
+                                isCreatingComment = false,
+                                comments = currentComments,
+                                newCommentContent = "",
+                                replyingToCommentId = null,
+                                replyingToUsername = null,
+                                error = null
+                            )
+                        }
+                    },
+                    onFailure = { error ->
+                        _uiState.value = _uiState.value.copy(
+                            isCreatingComment = false,
+                            error = error.message ?: "Failed to create comment"
+                        )
+                    }
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isCreatingComment = false,
+                    error = e.message ?: "Failed to create comment"
+                )
+            }
+        }
     }
 
     data class CommentUiState(
@@ -139,6 +157,8 @@ class CommentViewModel(
         val isCreatingComment: Boolean = false,
         val isDeletingComment: Boolean = false,
         val newCommentContent: String = "",
+        val replyingToCommentId: String? = null,
+        val replyingToUsername: String? = null,
         val error: String? = null
     )
 }

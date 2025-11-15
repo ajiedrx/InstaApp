@@ -144,7 +144,12 @@ fun CommentBottomSheet(
                             items(uiState.comments) { comment ->
                                 CommentItem(
                                     comment = comment,
-                                    onReply = { viewModel.updateCommentContent("") },
+                                    onReply = {
+                                        viewModel.setReplyingComment(
+                                            comment.id,
+                                            comment.author.username
+                                        )
+                                    },
                                     onDelete = {
                                         if (comment.isCurrentUserComment) {
                                             viewModel.deleteComment(comment.id)
@@ -176,6 +181,31 @@ fun CommentBottomSheet(
                 }
             }
 
+            // Reply Context
+            if (uiState.replyingToUsername != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Replying to ${uiState.replyingToUsername}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                    TextButton(
+                        onClick = { viewModel.clearReplyState() },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            }
+
             // Comment Input
             CommentInput(
                 content = uiState.newCommentContent,
@@ -185,6 +215,10 @@ fun CommentBottomSheet(
                     keyboardController?.hide()
                 },
                 isLoading = uiState.isCreatingComment,
+                placeholder = if (uiState.replyingToUsername != null)
+                    "Reply to ${uiState.replyingToUsername}..."
+                else
+                    "Add a comment...",
                 modifier = Modifier.padding(16.dp)
             )
         }
@@ -407,6 +441,7 @@ private fun CommentInput(
     onContentChange: (String) -> Unit,
     onSend: () -> Unit,
     isLoading: Boolean,
+    placeholder: String = "Add a comment...",
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -416,7 +451,7 @@ private fun CommentInput(
         OutlinedTextField(
             value = content,
             onValueChange = onContentChange,
-            placeholder = { Text("Add a comment...") },
+            placeholder = { Text(placeholder) },
             enabled = !isLoading,
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(24.dp),
