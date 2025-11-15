@@ -76,19 +76,21 @@ fun ProfileScreen(
             }
 
             uiState.user != null -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
-                ) {
-                    ProfileHeader(user = uiState.user!!, onLogout = onLogout)
-                    Spacer(modifier = Modifier.height(24.dp))
-                    UserStats(user = uiState.user!!)
-                    Spacer(modifier = Modifier.height(24.dp))
-                    UserPostsGrid(
-                        posts = uiState.posts,
-                        onNavigateToPostDetail = onNavigateToPostDetail
-                    )
+                uiState.user?.let { user ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                    ) {
+                        ProfileHeader(user = user, onLogout = onLogout)
+                        Spacer(modifier = Modifier.height(24.dp))
+                        UserStats(user = user)
+                        Spacer(modifier = Modifier.height(24.dp))
+                        UserPostsGrid(
+                            posts = uiState.posts,
+                            onNavigateToPostDetail = onNavigateToPostDetail
+                        )
+                    }
                 }
             }
         }

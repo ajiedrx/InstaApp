@@ -87,16 +87,17 @@ fun PostDetailScreen(
                 }
 
                 uiState.post != null -> {
-                    val post = uiState.post!!
-                    LazyColumn {
-                        item {
-                            PostDetailContent(
-                                postDetail = post,
-                                isOwnedByCurrentUser = viewModel.isPostOwnedByCurrentUser(post),
-                                onLikeClick = { viewModel.likePost(post.id) },
-                                onCommentClick = { showComments = true },
-                                onDeleteClick = { viewModel.deletePost(post.id) }
-                            )
+                    uiState.post?.let { post ->
+                        LazyColumn {
+                            item {
+                                PostDetailContent(
+                                    postDetail = post,
+                                    isOwnedByCurrentUser = viewModel.isPostOwnedByCurrentUser(post),
+                                    onLikeClick = { viewModel.likePost(post.id) },
+                                    onCommentClick = { showComments = true },
+                                    onDeleteClick = { viewModel.deletePost(post.id) }
+                                )
+                            }
                         }
                     }
                 }

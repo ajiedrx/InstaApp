@@ -14,14 +14,14 @@ class LikePostUseCase(
             return Result.failure(postResult.exceptionOrNull() ?: Exception("Post not found"))
         }
 
-        val post = postResult.getOrNull()!!
+        val post = postResult.getOrNull()
+        if (post == null) {
+            return Result.failure(Exception("Post not found"))
+        }
 
-        // Toggle the like status
         return if (post.isLiked) {
-            // Unlike the post
             postRepository.unlikePost(parameters)
         } else {
-            // Like the post
             postRepository.likePost(parameters)
         }
     }

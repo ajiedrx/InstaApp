@@ -56,7 +56,9 @@ class UserRepositoryImpl(
             // Save current session
             authPreferencesManager.saveCurrentUserId(newUser.id)
 
-            Result.success(currentUser!!)
+            currentUser?.let { user ->
+                Result.success(user)
+            } ?: Result.failure(Exception("Failed to create user"))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -104,7 +106,9 @@ class UserRepositoryImpl(
             // Save current session
             authPreferencesManager.saveCurrentUserId(userCredentials.id)
 
-            Result.success(currentUser!!)
+            currentUser?.let { user ->
+                Result.success(user)
+            } ?: Result.failure(Exception("Failed to login user"))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -134,7 +138,9 @@ class UserRepositoryImpl(
             _currentUserFlow.tryEmit(currentUser)
             isLoggedIn = true
 
-            Result.success(currentUser!!)
+            currentUser?.let { user ->
+                Result.success(user)
+            } ?: Result.failure(Exception("Failed to register user"))
         } catch (e: Exception) {
             Result.failure(e)
         }
