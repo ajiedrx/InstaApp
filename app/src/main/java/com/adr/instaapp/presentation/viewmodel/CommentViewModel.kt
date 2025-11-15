@@ -119,21 +119,13 @@ class CommentViewModel(
 
                 result.fold(
                     onSuccess = { newComment ->
-                        val currentComments = _uiState.value.comments.toMutableList()
-
-                        if (newComment.parentId != null) {
-                            loadComments(postId)
-                        } else {
-                            currentComments.add(newComment)
-                            _uiState.value = _uiState.value.copy(
-                                isCreatingComment = false,
-                                comments = currentComments,
-                                newCommentContent = "",
-                                replyingToCommentId = null,
-                                replyingToUsername = null,
-                                error = null
-                            )
-                        }
+                        _uiState.value = _uiState.value.copy(
+                            isCreatingComment = false,
+                            newCommentContent = "",
+                            replyingToCommentId = null,
+                            replyingToUsername = null,
+                            error = null
+                        )
                     },
                     onFailure = { error ->
                         _uiState.value = _uiState.value.copy(
