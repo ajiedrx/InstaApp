@@ -156,26 +156,6 @@ class UserRepositoryImpl(
         }
     }
 
-    override suspend fun updateProfile(bio: String): Result<User> {
-        return try {
-            dataSource.simulateNetworkDelay()
-
-            if (!isLoggedIn || currentUser == null) {
-                return Result.failure(Exception("User not logged in"))
-            }
-
-            // In a real app, we'd update user's bio in the database
-            // For this dummy implementation, we'll just return the current user
-            val user = dataSource.getCurrentUser()
-            // Note: In a real implementation, we'd update the user bio
-            // For now, we'll just return the existing user
-
-            Result.success(user)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
     /**
      * Map UserCredentials to domain User model
      */
