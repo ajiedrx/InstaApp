@@ -33,7 +33,13 @@ class RegisterUseCase(
             return Result.failure(Exception("Please enter a valid email address"))
         }
 
-        return userRepository.register(
+        // Cast to UserRepositoryImpl to access registerWithEmail method
+        val userRepositoryImpl =
+            userRepository as? com.adr.instaapp.data.repository.UserRepositoryImpl
+                ?: return Result.failure(Exception("Invalid repository implementation"))
+
+        return userRepositoryImpl.registerWithEmail(
+            email = parameters.email,
             username = parameters.username,
             password = parameters.password,
             bio = parameters.bio

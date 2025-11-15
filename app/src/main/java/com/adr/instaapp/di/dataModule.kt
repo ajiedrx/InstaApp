@@ -17,5 +17,5 @@ val dataModule = module {
     // Repository Implementations
     single<PostRepository> { PostRepositoryImpl(get()) }
     single<CommentRepository> { CommentRepositoryImpl(get()) }
-    single<UserRepository> { UserRepositoryImpl(get()) }
+    single<UserRepository> { UserRepositoryImpl(dataSource = get(), context = get()) }
 }
