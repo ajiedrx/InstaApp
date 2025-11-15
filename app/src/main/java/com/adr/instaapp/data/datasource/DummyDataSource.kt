@@ -186,7 +186,7 @@ class DummyDataSource {
 
         val updatedPost = post.copy(
             isLiked = isLiked,
-            likeCount = if (increment > 0) post.likeCount + 1 else post.likeCount - 1
+            likeCount = post.likeCount + increment
         )
 
         return when {
