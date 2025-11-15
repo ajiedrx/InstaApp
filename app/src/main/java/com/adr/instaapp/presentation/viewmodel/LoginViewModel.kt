@@ -2,6 +2,7 @@ package com.adr.instaapp.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.adr.instaapp.domain.usecase.LoginParams
 import com.adr.instaapp.domain.usecase.LoginUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,7 +33,7 @@ class LoginViewModel(
         )
 
         viewModelScope.launch {
-            loginUseCase(LoginUseCase.LoginParams(username, password))
+            loginUseCase(LoginParams(username, password))
                 .onSuccess { user ->
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
