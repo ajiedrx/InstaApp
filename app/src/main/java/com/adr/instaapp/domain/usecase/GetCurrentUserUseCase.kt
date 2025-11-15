@@ -1,15 +1,14 @@
 package com.adr.instaapp.domain.usecase
 
-import com.adr.instaapp.domain.base.NoParametersFlowUseCase
+import com.adr.instaapp.domain.base.NoParametersUseCase
 import com.adr.instaapp.domain.model.User
 import com.adr.instaapp.domain.repository.UserRepository
-import kotlinx.coroutines.flow.Flow
 
 class GetCurrentUserUseCase(
     private val userRepository: UserRepository
-) : NoParametersFlowUseCase<User?>() {
+) : NoParametersUseCase<User?>() {
 
-    override operator fun invoke(): Flow<User?> {
+    override suspend operator fun invoke(): User? {
         return userRepository.getCurrentUser()
     }
 }

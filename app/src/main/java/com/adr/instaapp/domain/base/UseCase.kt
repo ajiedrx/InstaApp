@@ -11,7 +11,7 @@ abstract class FlowUseCase<in P, R> {
 }
 
 abstract class NoParametersUseCase<R> {
-    abstract suspend operator fun invoke(): Result<R>
+    abstract suspend operator fun invoke(): R
 }
 
 abstract class NoParametersFlowUseCase<R> {

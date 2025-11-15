@@ -4,15 +4,22 @@ import com.adr.instaapp.data.datasource.DummyDataSource
 import com.adr.instaapp.domain.model.Post
 import com.adr.instaapp.domain.repository.PostRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import java.util.UUID
 
 class PostRepositoryImpl(
     private val dataSource: DummyDataSource
 ) : PostRepository {
 
-    private val _feedPostsFlow = MutableStateFlow<List<Post>>(emptyList())
-    private val _userPostsFlow = MutableStateFlow<List<Post>>(emptyList())
+    private val _feedPostsFlow = MutableSharedFlow<List<Post>>(
+        replay = 1,
+        onBufferOverflow = kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
+    )
+    private val _userPostsFlow = MutableSharedFlow<List<Post>>(
+        replay = 1,
+        onBufferOverflow = kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
+    )
 
     init {
         // Initialize with dummy data
@@ -20,9 +27,9 @@ class PostRepositoryImpl(
         refreshUserPosts()
     }
 
-    override fun getFeedPosts(): Flow<List<Post>> = _feedPostsFlow
+    override fun getFeedPosts(): Flow<List<Post>> = _feedPostsFlow.asSharedFlow()
 
-    override fun getUserPosts(userId: String): Flow<List<Post>> = _userPostsFlow
+    override fun getUserPosts(userId: String): Flow<List<Post>> = _userPostsFlow.asSharedFlow()
 
     override suspend fun likePost(postId: String): Result<Unit> {
         return try {
@@ -132,11 +139,11 @@ class PostRepositoryImpl(
     }
 
     private fun refreshFeedPosts() {
-        _feedPostsFlow.value = dataSource.getFeedPosts()
+        _feedPostsFlow.tryEmit(dataSource.getFeedPosts())
     }
 
     private fun refreshUserPosts() {
-        _userPostsFlow.value = dataSource.getUserPosts()
+        _userPostsFlow.tryEmit(dataSource.getUserPosts())
     }
 
     private fun refreshAllPosts() {
