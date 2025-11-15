@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ModeComment
@@ -38,7 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.adr.instaapp.presentation.viewmodel.FeedViewModel
+import com.adr.instaapp.presentation.viewmodel.PostDetailViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,18 +47,13 @@ fun PostDetailScreen(
     postId: String,
     onBackClick: () -> Unit
 ) {
-    val viewModel: FeedViewModel = koinViewModel()
+    val viewModel: PostDetailViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
-
-    // Find the specific post
-    val post = uiState.posts.find { it.id == postId }
 
     var showComments by remember { mutableStateOf(false) }
 
     LaunchedEffect(postId) {
-        if (post == null) {
-            viewModel.refresh()
-        }
+        viewModel.loadPost(postId)
     }
 
     Scaffold(
@@ -68,7 +63,7 @@ fun PostDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
                         )
                     }
@@ -91,11 +86,12 @@ fun PostDetailScreen(
                     }
                 }
 
-                post != null -> {
+                uiState.post != null -> {
+                    val post = uiState.post!!
                     LazyColumn {
                         item {
                             PostDetailContent(
-                                post = post,
+                                postDetail = post,
                                 isOwnedByCurrentUser = viewModel.isPostOwnedByCurrentUser(post),
                                 onLikeClick = { viewModel.likePost(post.id) },
                                 onCommentClick = { showComments = true },
@@ -118,11 +114,14 @@ fun PostDetailScreen(
                 }
             }
 
-            if (showComments && post != null) {
-                CommentBottomSheet(
-                    postId = post.id,
-                    onDismiss = { showComments = false }
-                )
+            if (showComments) {
+                val post = uiState.post
+                if (post != null) {
+                    CommentBottomSheet(
+                        postId = post.id,
+                        onDismiss = { showComments = false }
+                    )
+                }
             }
         }
     }
@@ -131,7 +130,7 @@ fun PostDetailScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PostDetailContent(
-    post: com.adr.instaapp.domain.model.Post,
+    postDetail: com.adr.instaapp.domain.model.Post,
     isOwnedByCurrentUser: Boolean,
     onLikeClick: () -> Unit,
     onCommentClick: () -> Unit,
@@ -146,8 +145,8 @@ private fun PostDetailContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = post.author.profilePictureUrl,
-                contentDescription = "${post.author.username}'s profile picture",
+                model = postDetail.author.profilePictureUrl,
+                contentDescription = "${postDetail.author.username}'s profile picture",
                 modifier = Modifier
                     .width(48.dp)
                     .height(48.dp)
@@ -159,7 +158,7 @@ private fun PostDetailContent(
 
             Column {
                 Text(
-                    text = post.author.username,
+                    text = postDetail.author.username,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
@@ -172,8 +171,8 @@ private fun PostDetailContent(
 
         // Post Image
         AsyncImage(
-            model = post.imageUrl,
-            contentDescription = post.caption,
+            model = postDetail.imageUrl,
+            contentDescription = postDetail.caption,
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f),
@@ -189,15 +188,15 @@ private fun PostDetailContent(
                 onClick = onLikeClick
             ) {
                 Icon(
-                    imageVector = if (post.isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                    contentDescription = if (post.isLiked) "Unlike" else "Like",
-                    tint = if (post.isLiked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                    imageVector = if (postDetail.isLiked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = if (postDetail.isLiked) "Unlike" else "Like",
+                    tint = if (postDetail.isLiked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.width(28.dp)
                 )
             }
 
             Text(
-                text = "${post.likeCount} likes",
+                text = "${postDetail.likeCount} likes",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(start = 4.dp)
             )
@@ -215,7 +214,7 @@ private fun PostDetailContent(
             }
 
             Text(
-                text = "${post.commentCount} comments",
+                text = "${postDetail.commentCount} comments",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(start = 4.dp)
             )
@@ -229,12 +228,12 @@ private fun PostDetailContent(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = post.author.username,
+                    text = postDetail.author.username,
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.padding(end = 8.dp)
                 )
                 Text(
-                    text = post.caption,
+                    text = postDetail.caption,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

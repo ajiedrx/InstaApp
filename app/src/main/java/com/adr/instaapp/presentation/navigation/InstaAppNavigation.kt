@@ -46,7 +46,8 @@ fun InstaAppNavigation() {
 
         composable("main") {
             MainScreen(
-                onNavigateToPostCreation = { navController.navigate("post_creation") }
+                onNavigateToPostCreation = { navController.navigate("post_creation") },
+                onNavigateToPostDetail = { postId -> navController.navigate("post_detail/$postId") }
             )
         }
 

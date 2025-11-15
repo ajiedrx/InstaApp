@@ -23,7 +23,8 @@ import com.adr.instaapp.R
 
 @Composable
 fun MainScreen(
-    onNavigateToPostCreation: () -> Unit = {}
+    onNavigateToPostCreation: () -> Unit = {},
+    onNavigateToPostDetail: (String) -> Unit = {}
 ) {
     val navController = rememberNavController()
 
@@ -46,16 +47,12 @@ fun MainScreen(
         ) {
             composable("feed") {
                 FeedScreen(
-                    onNavigateToPostDetail = { postId ->
-                        navController.navigate("post_detail/$postId")
-                    }
+                    onNavigateToPostDetail = onNavigateToPostDetail
                 )
             }
             composable("profile") {
                 ProfileScreen(
-                    onNavigateToPostDetail = { postId ->
-                        navController.navigate("post_detail/$postId")
-                    }
+                    onNavigateToPostDetail = onNavigateToPostDetail
                 )
             }
         }

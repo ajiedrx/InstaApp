@@ -61,6 +61,30 @@ class PostRepositoryImpl(
         }
     }
 
+    override suspend fun updatePostLike(
+        postId: String,
+        isLiked: Boolean,
+        increment: Int
+    ): Result<Post> {
+        return try {
+            dataSource.simulateNetworkDelay()
+            val success = dataSource.updatePostLike(postId, isLiked, increment)
+            if (success) {
+                refreshAllPosts()
+                val post = dataSource.getPostById(postId)
+                if (post != null) {
+                    Result.success(post)
+                } else {
+                    Result.failure(Exception("Post not found after update"))
+                }
+            } else {
+                Result.failure(Exception("Post not found"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun createPost(imageUrl: String, caption: String): Result<Post> {
         return try {
             dataSource.simulateNetworkDelay()
