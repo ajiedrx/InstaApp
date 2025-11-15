@@ -143,6 +143,11 @@ class DummyDataSource {
     // Comments storage (session-only)
     private val comments = mutableMapOf<String, MutableList<Comment>>()
 
+    // Initialize with some sample comments
+    init {
+        initializeSampleComments()
+    }
+
     // Simulated API delay
     suspend fun simulateNetworkDelay() {
         delay(Random.nextLong(1000, 2000)) // 1-2 seconds delay
@@ -220,5 +225,62 @@ class DummyDataSource {
 
     fun deletePost(postId: String): Boolean {
         return userPosts.removeIf { it.id == postId }
+    }
+
+    private fun initializeSampleComments() {
+        val allPosts = userPosts + feedPosts
+
+        allPosts.forEach { post ->
+            val postComments = mutableListOf<Comment>()
+            val commentCount = post.commentCount
+
+            if (commentCount > 0) {
+                // Create sample comments for posts that have comments
+                val numberOfComments = minOf(commentCount, 5) // Limit to 5 sample comments per post
+
+                for (i in 0 until numberOfComments) {
+                    val isReply = i > 0 && Random.nextBoolean() // Make some comments replies
+                    val author = if (isReply) currentUser else otherUsers.random()
+                    val parentComment = if (isReply) postComments.firstOrNull() else null
+
+                    val comment = Comment(
+                        id = "comment_${post.id}_$i",
+                        postId = post.id,
+                        author = author,
+                        content = when (i) {
+                            0 -> "Amazing post! 📸"
+                            1 -> "Love this! ❤️"
+                            2 -> "Great shot! 👏"
+                            3 -> "Where was this taken? 📍"
+                            else -> "Thanks for sharing! ✨"
+                        },
+                        timestamp = post.timestamp - (i * 3600000L), // Comments before post timestamp
+                        level = if (isReply) 1 else 0,
+                        parentId = parentComment?.id,
+                        replies = if (!isReply && i == 0 && numberOfComments > 1) {
+                            // Add a reply to the first comment
+                            listOf(
+                                Comment(
+                                    id = "reply_${post.id}_0_1",
+                                    postId = post.id,
+                                    author = otherUsers.random(),
+                                    content = "I agree! 👍",
+                                    timestamp = post.timestamp - 1800000L,
+                                    level = 1,
+                                    parentId = "comment_${post.id}_0",
+                                    replies = emptyList(),
+                                    isCurrentUserComment = false
+                                )
+                            )
+                        } else emptyList(),
+                        isCurrentUserComment = author.id == currentUser.id
+                    )
+
+                    postComments.add(comment)
+                }
+
+                comments[post.id] = postComments
+            }
+        }
     }
 }
