@@ -1,7 +1,10 @@
 package com.adr.instaapp.presentation.screen
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -19,12 +22,21 @@ import androidx.navigation.compose.rememberNavController
 import com.adr.instaapp.R
 
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    onNavigateToPostCreation: () -> Unit = {}
+) {
     val navController = rememberNavController()
 
     Scaffold(
         bottomBar = {
             BottomNavigationBar(navController = navController)
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onNavigateToPostCreation
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Create Post")
+            }
         }
     ) { paddingValues ->
         NavHost(

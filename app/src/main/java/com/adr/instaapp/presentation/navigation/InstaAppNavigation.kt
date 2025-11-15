@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.adr.instaapp.presentation.screen.LoginScreen
 import com.adr.instaapp.presentation.screen.MainScreen
+import com.adr.instaapp.presentation.screen.PostCreationScreen
 
 @Composable
 fun InstaAppNavigation() {
@@ -43,7 +44,16 @@ fun InstaAppNavigation() {
         }
 
         composable("main") {
-            MainScreen()
+            MainScreen(
+                onNavigateToPostCreation = { navController.navigate("post_creation") }
+            )
+        }
+
+        composable("post_creation") {
+            PostCreationScreen(
+                onPostCreated = { navController.navigateUp() },
+                onNavigateBack = { navController.navigateUp() }
+            )
         }
     }
 }
