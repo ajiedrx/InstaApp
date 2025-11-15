@@ -6,12 +6,14 @@ import com.adr.instaapp.presentation.viewmodel.LoginViewModel
 import com.adr.instaapp.presentation.viewmodel.PostCreationViewModel
 import com.adr.instaapp.presentation.viewmodel.PostDetailViewModel
 import com.adr.instaapp.presentation.viewmodel.ProfileViewModel
+import com.adr.instaapp.presentation.viewmodel.RegisterViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val presentationModule = module {
     // ViewModels
     viewModel { LoginViewModel(get()) }
+    viewModel { RegisterViewModel(get()) }
     viewModel {
         FeedViewModel(
             getFeedPostsUseCase = get(),
