@@ -1,5 +1,6 @@
 package com.adr.instaapp.di
 
+import com.adr.instaapp.presentation.viewmodel.AuthViewModel
 import com.adr.instaapp.presentation.viewmodel.CommentViewModel
 import com.adr.instaapp.presentation.viewmodel.FeedViewModel
 import com.adr.instaapp.presentation.viewmodel.LoginViewModel
@@ -12,6 +13,7 @@ import org.koin.dsl.module
 
 val presentationModule = module {
     // ViewModels
+    viewModel { AuthViewModel(get(), get()) }
     viewModel { LoginViewModel(get()) }
     viewModel { RegisterViewModel(get()) }
     viewModel {

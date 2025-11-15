@@ -35,7 +35,8 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ProfileScreen(
-    onNavigateToPostDetail: (String) -> Unit = {}
+    onNavigateToPostDetail: (String) -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val viewModel: ProfileViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
@@ -80,7 +81,7 @@ fun ProfileScreen(
                         .fillMaxSize()
                         .padding(16.dp)
                 ) {
-                    ProfileHeader(user = uiState.user!!)
+                    ProfileHeader(user = uiState.user!!, onLogout = onLogout)
                     Spacer(modifier = Modifier.height(24.dp))
                     UserStats(user = uiState.user!!)
                     Spacer(modifier = Modifier.height(24.dp))
@@ -95,30 +96,44 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun ProfileHeader(user: com.adr.instaapp.domain.model.User) {
+private fun ProfileHeader(
+    user: com.adr.instaapp.domain.model.User,
+    onLogout: () -> Unit = {}
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        AsyncImage(
-            model = user.profilePictureUrl,
-            contentDescription = "Profile Picture",
-            modifier = Modifier
-                .size(80.dp)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Column {
-            Text(
-                text = user.username,
-                style = MaterialTheme.typography.titleLarge
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                model = user.profilePictureUrl,
+                contentDescription = "Profile Picture",
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
             )
-            Text(
-                text = user.bio,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = 4.dp)
-            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(
+                    text = user.username,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    text = user.bio,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+        }
+
+        Button(
+            onClick = onLogout
+        ) {
+            Text("Logout")
         }
     }
 }

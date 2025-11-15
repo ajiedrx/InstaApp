@@ -185,9 +185,9 @@ class UserRepositoryImpl(
             username = credentials.username,
             profilePictureUrl = credentials.profileImageUrl,
             bio = credentials.bio,
-            followersCount = 0,
-            followingCount = 0,
-            postsCount = 0
+            followersCount = 125,
+            followingCount = 98,
+            postsCount = 4
         )
     }
 }

@@ -24,7 +24,8 @@ import com.adr.instaapp.R
 @Composable
 fun MainScreen(
     onNavigateToPostCreation: () -> Unit = {},
-    onNavigateToPostDetail: (String) -> Unit = {}
+    onNavigateToPostDetail: (String) -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val navController = rememberNavController()
 
@@ -52,7 +53,8 @@ fun MainScreen(
             }
             composable("profile") {
                 ProfileScreen(
-                    onNavigateToPostDetail = onNavigateToPostDetail
+                    onNavigateToPostDetail = onNavigateToPostDetail,
+                    onLogout = onLogout
                 )
             }
         }

@@ -11,6 +11,7 @@ import com.adr.instaapp.domain.usecase.GetFeedPostsUseCase
 import com.adr.instaapp.domain.usecase.GetUserPostsUseCase
 import com.adr.instaapp.domain.usecase.LikePostUseCase
 import com.adr.instaapp.domain.usecase.LoginUseCase
+import com.adr.instaapp.domain.usecase.LogoutUseCase
 import com.adr.instaapp.domain.usecase.RegisterUseCase
 import com.adr.instaapp.domain.usecase.UpdateCommentUseCase
 import com.adr.instaapp.domain.usecase.UpdatePostLikeUseCase
@@ -37,4 +38,5 @@ val domainModule = module {
     single { DeletePostUseCase(get()) }
     single { GetCommentsByPostIdUseCase(get()) }
     single { UpdatePostLikeUseCase(get()) }
+    single { LogoutUseCase(get()) }
 }
