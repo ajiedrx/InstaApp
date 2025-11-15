@@ -39,15 +39,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.adr.instaapp.presentation.viewmodel.CommentViewModel
 import com.adr.instaapp.presentation.viewmodel.FeedViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun FeedScreen(
+    viewModel: FeedViewModel,
     onNavigateToPostDetail: (String) -> Unit = {}
 ) {
-    val viewModel: FeedViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
+    val commentViewModel: CommentViewModel = koinViewModel()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -102,6 +104,7 @@ fun FeedScreen(
 
                 if (showComments) {
                     CommentBottomSheet(
+                        viewModel = commentViewModel,
                         postId = selectedPostId,
                         onDismiss = { showComments = false }
                     )

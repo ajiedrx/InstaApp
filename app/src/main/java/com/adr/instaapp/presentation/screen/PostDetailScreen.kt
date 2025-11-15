@@ -38,17 +38,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.adr.instaapp.presentation.viewmodel.CommentViewModel
 import com.adr.instaapp.presentation.viewmodel.PostDetailViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostDetailScreen(
+    viewModel: PostDetailViewModel,
     postId: String,
     onBackClick: () -> Unit
 ) {
-    val viewModel: PostDetailViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
+    val commentViewModel: CommentViewModel = koinViewModel()
 
     var showComments by remember { mutableStateOf(false) }
 
@@ -119,6 +121,7 @@ fun PostDetailScreen(
                 val post = uiState.post
                 if (post != null) {
                     CommentBottomSheet(
+                        viewModel = commentViewModel,
                         postId = post.id,
                         onDismiss = { showComments = false }
                     )

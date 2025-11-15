@@ -31,14 +31,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.adr.instaapp.presentation.viewmodel.ProfileViewModel
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ProfileScreen(
-    onNavigateToPostDetail: (String) -> Unit = {},
-    onLogout: () -> Unit = {}
+    viewModel: ProfileViewModel,
+    onNavigateToPostDetail: (String) -> Unit,
+    onLogout: () -> Unit
 ) {
-    val viewModel: ProfileViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
 
     Box(

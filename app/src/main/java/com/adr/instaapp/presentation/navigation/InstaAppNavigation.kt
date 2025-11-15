@@ -20,6 +20,11 @@ import com.adr.instaapp.presentation.screen.PostCreationScreen
 import com.adr.instaapp.presentation.screen.PostDetailScreen
 import com.adr.instaapp.presentation.screen.RegisterScreen
 import com.adr.instaapp.presentation.viewmodel.AuthViewModel
+import com.adr.instaapp.presentation.viewmodel.LoginViewModel
+import com.adr.instaapp.presentation.viewmodel.PostCreationViewModel
+import com.adr.instaapp.presentation.viewmodel.PostDetailViewModel
+import com.adr.instaapp.presentation.viewmodel.RegisterViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun InstaAppNavigation(
@@ -65,7 +70,9 @@ fun InstaAppNavigation(
                 startDestination = startDestination
             ) {
                 composable("login") {
+                    val loginViewModel: LoginViewModel = koinViewModel()
                     LoginScreen(
+                        viewModel = loginViewModel,
                         onNavigateToMain = {
                             authViewModel.refreshAuthState()
                             navController.navigate("main") {
@@ -77,7 +84,9 @@ fun InstaAppNavigation(
                 }
 
                 composable("register") {
+                    val registerViewModel: RegisterViewModel = koinViewModel()
                     RegisterScreen(
+                        viewModel = registerViewModel,
                         onNavigateToMain = {
                             authViewModel.refreshAuthState()
                             navController.navigate("main") {
@@ -102,15 +111,19 @@ fun InstaAppNavigation(
                 }
 
                 composable("post_creation") {
+                    val postCreationViewModel: PostCreationViewModel = koinViewModel()
                     PostCreationScreen(
+                        viewModel = postCreationViewModel,
                         onPostCreated = { navController.navigateUp() },
                         onNavigateBack = { navController.navigateUp() }
                     )
                 }
 
                 composable("post_detail/{postId}") { backStackEntry ->
+                    val postDetailViewModel: PostDetailViewModel = koinViewModel()
                     val postId = backStackEntry.arguments?.getString("postId") ?: ""
                     PostDetailScreen(
+                        viewModel = postDetailViewModel,
                         postId = postId,
                         onBackClick = { navController.navigateUp() }
                     )

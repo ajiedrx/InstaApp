@@ -20,6 +20,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.adr.instaapp.R
+import com.adr.instaapp.presentation.viewmodel.FeedViewModel
+import com.adr.instaapp.presentation.viewmodel.ProfileViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MainScreen(
@@ -47,12 +50,16 @@ fun MainScreen(
             modifier = Modifier.padding(paddingValues)
         ) {
             composable("feed") {
+                val feedViewModel: FeedViewModel = koinViewModel()
                 FeedScreen(
+                    viewModel = feedViewModel,
                     onNavigateToPostDetail = onNavigateToPostDetail
                 )
             }
             composable("profile") {
+                val profileViewModel: ProfileViewModel = koinViewModel()
                 ProfileScreen(
+                    viewModel = profileViewModel,
                     onNavigateToPostDetail = onNavigateToPostDetail,
                     onLogout = onLogout
                 )

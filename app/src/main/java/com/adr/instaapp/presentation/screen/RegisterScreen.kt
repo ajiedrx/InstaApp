@@ -30,14 +30,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.adr.instaapp.presentation.viewmodel.RegisterViewModel
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun RegisterScreen(
+    viewModel: RegisterViewModel,
     onNavigateToMain: () -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
-    val viewModel: RegisterViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
     val navigateToMain by viewModel.navigateToMain.collectAsState()
 

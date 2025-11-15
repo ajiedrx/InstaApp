@@ -53,7 +53,6 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.adr.instaapp.domain.model.Comment
 import com.adr.instaapp.presentation.viewmodel.CommentViewModel
-import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -61,11 +60,11 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentBottomSheet(
+    viewModel: CommentViewModel,
     postId: String,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val viewModel: CommentViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
 
