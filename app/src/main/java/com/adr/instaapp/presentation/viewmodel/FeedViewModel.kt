@@ -2,16 +2,21 @@ package com.adr.instaapp.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.adr.instaapp.domain.usecase.DeletePostUseCase
+import com.adr.instaapp.domain.usecase.GetCurrentUserUseCase
 import com.adr.instaapp.domain.usecase.GetFeedPostsUseCase
 import com.adr.instaapp.domain.usecase.LikePostUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class FeedViewModel(
     private val getFeedPostsUseCase: GetFeedPostsUseCase,
-    private val likePostUseCase: LikePostUseCase
+    private val likePostUseCase: LikePostUseCase,
+    private val getCurrentUserUseCase: GetCurrentUserUseCase,
+    private val deletePostUseCase: DeletePostUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FeedUiState())
@@ -54,6 +59,31 @@ class FeedViewModel(
                         error = exception.message ?: "Failed to like post"
                     )
                 }
+        }
+    }
+
+    fun deletePost(postId: String) {
+        viewModelScope.launch {
+            deletePostUseCase(postId)
+                .onSuccess {
+                    loadFeedPosts()
+                }
+                .onFailure { exception ->
+                    _uiState.value = _uiState.value.copy(
+                        error = exception.message ?: "Failed to delete post"
+                    )
+                }
+        }
+    }
+
+    fun isPostOwnedByCurrentUser(post: com.adr.instaapp.domain.model.Post): Boolean {
+        return runBlocking {
+            try {
+                val currentUser = getCurrentUserUseCase()
+                currentUser?.id == post.author.id
+            } catch (e: Exception) {
+                false
+            }
         }
     }
 

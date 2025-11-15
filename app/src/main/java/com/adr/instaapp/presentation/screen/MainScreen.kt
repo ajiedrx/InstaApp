@@ -45,10 +45,18 @@ fun MainScreen(
             modifier = Modifier.padding(paddingValues)
         ) {
             composable("feed") {
-                FeedScreen()
+                FeedScreen(
+                    onNavigateToPostDetail = { postId ->
+                        navController.navigate("post_detail/$postId")
+                    }
+                )
             }
             composable("profile") {
-                ProfileScreen()
+                ProfileScreen(
+                    onNavigateToPostDetail = { postId ->
+                        navController.navigate("post_detail/$postId")
+                    }
+                )
             }
         }
     }

@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.adr.instaapp.presentation.screen.LoginScreen
 import com.adr.instaapp.presentation.screen.MainScreen
 import com.adr.instaapp.presentation.screen.PostCreationScreen
+import com.adr.instaapp.presentation.screen.PostDetailScreen
 
 @Composable
 fun InstaAppNavigation() {
@@ -53,6 +54,14 @@ fun InstaAppNavigation() {
             PostCreationScreen(
                 onPostCreated = { navController.navigateUp() },
                 onNavigateBack = { navController.navigateUp() }
+            )
+        }
+
+        composable("post_detail/{postId}") { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId") ?: ""
+            PostDetailScreen(
+                postId = postId,
+                onBackClick = { navController.navigateUp() }
             )
         }
     }

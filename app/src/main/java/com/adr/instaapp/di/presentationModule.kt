@@ -11,7 +11,7 @@ import org.koin.dsl.module
 val presentationModule = module {
     // ViewModels
     viewModel { LoginViewModel(get()) }
-    viewModel { FeedViewModel(get(), get()) }
+    viewModel { FeedViewModel(get(), get(), get(), get()) }
     viewModel { ProfileViewModel(get(), get()) }
     viewModel { CommentViewModel(get(), get(), get(), get()) }
     viewModel { PostCreationViewModel(get()) }

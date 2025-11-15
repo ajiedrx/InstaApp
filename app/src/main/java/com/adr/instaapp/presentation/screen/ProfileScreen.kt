@@ -1,5 +1,6 @@
 package com.adr.instaapp.presentation.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,7 +34,9 @@ import com.adr.instaapp.presentation.viewmodel.ProfileViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    onNavigateToPostDetail: (String) -> Unit = {}
+) {
     val viewModel: ProfileViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
 
@@ -81,7 +84,10 @@ fun ProfileScreen() {
                     Spacer(modifier = Modifier.height(24.dp))
                     UserStats(user = uiState.user!!)
                     Spacer(modifier = Modifier.height(24.dp))
-                    UserPostsGrid(posts = uiState.posts)
+                    UserPostsGrid(
+                        posts = uiState.posts,
+                        onNavigateToPostDetail = onNavigateToPostDetail
+                    )
                 }
             }
         }
@@ -146,7 +152,10 @@ private fun StatItem(count: Int, label: String) {
 }
 
 @Composable
-private fun UserPostsGrid(posts: List<com.adr.instaapp.domain.model.Post>) {
+private fun UserPostsGrid(
+    posts: List<com.adr.instaapp.domain.model.Post>,
+    onNavigateToPostDetail: (String) -> Unit = {}
+) {
     Text(
         text = "My Posts",
         style = MaterialTheme.typography.titleMedium,
@@ -171,20 +180,29 @@ private fun UserPostsGrid(posts: List<com.adr.instaapp.domain.model.Post>) {
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             items(posts) { post ->
-                PostGridItem(imageUrl = post.imageUrl)
+                PostGridItem(
+                    imageUrl = post.imageUrl,
+                    postId = post.id,
+                    onNavigateToPostDetail = onNavigateToPostDetail
+                )
             }
         }
     }
 }
 
 @Composable
-private fun PostGridItem(imageUrl: String) {
+private fun PostGridItem(
+    imageUrl: String,
+    postId: String,
+    onNavigateToPostDetail: (String) -> Unit = {}
+) {
     AsyncImage(
         model = imageUrl,
         contentDescription = "Post Image",
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(1f),
+            .aspectRatio(1f)
+            .clickable { onNavigateToPostDetail(postId) },
         contentScale = ContentScale.Crop
     )
 }
