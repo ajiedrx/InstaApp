@@ -14,10 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.adr.instaapp.presentation.screen.LoginEvent
 import com.adr.instaapp.presentation.screen.LoginScreen
 import com.adr.instaapp.presentation.screen.MainScreen
+import com.adr.instaapp.presentation.screen.PostCreationEvent
 import com.adr.instaapp.presentation.screen.PostCreationScreen
+import com.adr.instaapp.presentation.screen.PostDetailEvent
 import com.adr.instaapp.presentation.screen.PostDetailScreen
+import com.adr.instaapp.presentation.screen.RegisterEvent
 import com.adr.instaapp.presentation.screen.RegisterScreen
 import com.adr.instaapp.presentation.viewmodel.AuthViewModel
 import com.adr.instaapp.presentation.viewmodel.LoginViewModel
@@ -71,28 +75,91 @@ fun InstaAppNavigation(
             ) {
                 composable("login") {
                     val loginViewModel: LoginViewModel = koinViewModel()
-                    LoginScreen(
-                        viewModel = loginViewModel,
-                        onNavigateToMain = {
+                    val uiState by loginViewModel.uiState.collectAsState()
+                    val navigateToMain by loginViewModel.navigateToMain.collectAsState()
+
+                    LaunchedEffect(navigateToMain) {
+                        if (navigateToMain) {
+                            loginViewModel.onNavigationHandled()
                             authViewModel.refreshAuthState()
                             navController.navigate("main") {
                                 popUpTo("login") { inclusive = true }
                             }
+                        }
+                    }
+
+                    LoginScreen(
+                        uiState = uiState,
+                        onEvent = { event ->
+                            when (event) {
+                                is LoginEvent.OnLoginClick -> loginViewModel.login(
+                                    uiState.username,
+                                    uiState.password
+                                )
+
+                                is LoginEvent.OnUsernameChange -> loginViewModel.updateUsername(
+                                    event.username
+                                )
+
+                                is LoginEvent.OnPasswordChange -> loginViewModel.updatePassword(
+                                    event.password
+                                )
+
+                                is LoginEvent.OnRegisterClick -> navController.navigate("register")
+                            }
                         },
+                        onNavigateToMain = { /* Handled by LaunchedEffect */ },
                         onNavigateToRegister = { navController.navigate("register") }
                     )
                 }
 
                 composable("register") {
                     val registerViewModel: RegisterViewModel = koinViewModel()
-                    RegisterScreen(
-                        viewModel = registerViewModel,
-                        onNavigateToMain = {
+                    val uiState by registerViewModel.uiState.collectAsState()
+                    val navigateToMain by registerViewModel.navigateToMain.collectAsState()
+
+                    LaunchedEffect(navigateToMain) {
+                        if (navigateToMain) {
+                            registerViewModel.onNavigationHandled()
                             authViewModel.refreshAuthState()
                             navController.navigate("main") {
                                 popUpTo("register") { inclusive = true }
                             }
+                        }
+                    }
+
+                    RegisterScreen(
+                        uiState = uiState,
+                        onEvent = { event ->
+                            when (event) {
+                                is RegisterEvent.OnRegisterClick -> registerViewModel.register(
+                                    uiState.email,
+                                    uiState.username,
+                                    uiState.password,
+                                    uiState.bio
+                                )
+
+                                is RegisterEvent.OnEmailChange -> registerViewModel.updateEmail(
+                                    event.email
+                                )
+
+                                is RegisterEvent.OnUsernameChange -> registerViewModel.updateUsername(
+                                    event.username
+                                )
+
+                                is RegisterEvent.OnPasswordChange -> registerViewModel.updatePassword(
+                                    event.password
+                                )
+
+                                is RegisterEvent.OnConfirmPasswordChange -> registerViewModel.updateConfirmPassword(
+                                    event.confirmPassword
+                                )
+
+                                is RegisterEvent.OnBioChange -> registerViewModel.updateBio(event.bio)
+                                is RegisterEvent.OnLoginClick -> navController.navigateUp()
+                            }
                         },
+                        onNavigateToMain = { /* Handled by LaunchedEffect */ },
                         onNavigateToLogin = { navController.navigateUp() }
                     )
                 }
@@ -112,8 +179,20 @@ fun InstaAppNavigation(
 
                 composable("post_creation") {
                     val postCreationViewModel: PostCreationViewModel = koinViewModel()
+                    val uiState by postCreationViewModel.uiState.collectAsState()
+                    
                     PostCreationScreen(
-                        viewModel = postCreationViewModel,
+                        uiState = uiState,
+                        onEvent = { event ->
+                            when (event) {
+                                is PostCreationEvent.OnCreatePost -> postCreationViewModel.createPost()
+                                is PostCreationEvent.OnCaptionChange -> postCreationViewModel.updateCaption(
+                                    event.caption
+                                )
+
+                                is PostCreationEvent.OnNavigateBack -> navController.navigateUp()
+                            }
+                        },
                         onPostCreated = { navController.navigateUp() },
                         onNavigateBack = { navController.navigateUp() }
                     )
@@ -122,10 +201,26 @@ fun InstaAppNavigation(
                 composable("post_detail/{postId}") { backStackEntry ->
                     val postDetailViewModel: PostDetailViewModel = koinViewModel()
                     val postId = backStackEntry.arguments?.getString("postId") ?: ""
+                    val uiState by postDetailViewModel.uiState.collectAsState()
+                    val currentUser by authViewModel.currentUser.collectAsState()
+                    
                     PostDetailScreen(
-                        viewModel = postDetailViewModel,
+                        uiState = uiState,
+                        onEvent = { event ->
+                            when (event) {
+                                is PostDetailEvent.OnLoadPost -> postDetailViewModel.loadPost(event.postId)
+                                is PostDetailEvent.OnLikePost -> postDetailViewModel.likePost(event.postId)
+                                is PostDetailEvent.OnDeletePost -> postDetailViewModel.deletePost(
+                                    event.postId
+                                )
+
+                                is PostDetailEvent.OnCommentClick -> { /* Handled by CommentBottomSheet */
+                                }
+                            }
+                        },
                         postId = postId,
-                        onBackClick = { navController.navigateUp() }
+                        onBackClick = { navController.navigateUp() },
+                        currentUser = currentUser
                     )
                 }
             }

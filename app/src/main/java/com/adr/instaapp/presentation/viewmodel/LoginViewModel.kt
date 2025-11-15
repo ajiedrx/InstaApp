@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.adr.instaapp.domain.usecase.LoginParams
 import com.adr.instaapp.domain.usecase.LoginUseCase
+import com.adr.instaapp.presentation.screen.LoginUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -50,12 +51,15 @@ class LoginViewModel(
         }
     }
 
+    fun updateUsername(username: String) {
+        _uiState.value = _uiState.value.copy(username = username)
+    }
+
+    fun updatePassword(password: String) {
+        _uiState.value = _uiState.value.copy(password = password)
+    }
+
     fun onNavigationHandled() {
         _navigateToMain.value = false
     }
-
-    data class LoginUiState(
-        val isLoading: Boolean = false,
-        val error: String? = null
-    )
 }

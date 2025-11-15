@@ -18,41 +18,39 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.adr.instaapp.presentation.viewmodel.RegisterViewModel
+
+data class RegisterUiState(
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val email: String = "",
+    val username: String = "",
+    val password: String = "",
+    val confirmPassword: String = "",
+    val bio: String = ""
+)
+
+sealed interface RegisterEvent {
+    data object OnRegisterClick : RegisterEvent
+    data object OnLoginClick : RegisterEvent
+    data class OnEmailChange(val email: String) : RegisterEvent
+    data class OnUsernameChange(val username: String) : RegisterEvent
+    data class OnPasswordChange(val password: String) : RegisterEvent
+    data class OnConfirmPasswordChange(val confirmPassword: String) : RegisterEvent
+    data class OnBioChange(val bio: String) : RegisterEvent
+}
 
 @Composable
 fun RegisterScreen(
-    viewModel: RegisterViewModel,
+    uiState: RegisterUiState,
+    onEvent: (RegisterEvent) -> Unit,
     onNavigateToMain: () -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val navigateToMain by viewModel.navigateToMain.collectAsState()
-
-    var email by remember { mutableStateOf("") }
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var bio by remember { mutableStateOf("") }
-
-    LaunchedEffect(navigateToMain) {
-        if (navigateToMain) {
-            viewModel.onNavigationHandled()
-            onNavigateToMain()
-        }
-    }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -82,11 +80,8 @@ fun RegisterScreen(
 
             // Email Field
             OutlinedTextField(
-                value = email,
-                onValueChange = {
-                    email = it
-                    viewModel.clearError()
-                },
+                value = uiState.email,
+                onValueChange = { onEvent(RegisterEvent.OnEmailChange(it)) },
                 label = { Text("Email") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 singleLine = true,
@@ -98,11 +93,8 @@ fun RegisterScreen(
 
             // Username Field
             OutlinedTextField(
-                value = username,
-                onValueChange = {
-                    username = it
-                    viewModel.clearError()
-                },
+                value = uiState.username,
+                onValueChange = { onEvent(RegisterEvent.OnUsernameChange(it)) },
                 label = { Text("Username") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 singleLine = true,
@@ -114,18 +106,15 @@ fun RegisterScreen(
 
             // Password Field
             OutlinedTextField(
-                value = password,
-                onValueChange = {
-                    password = it
-                    viewModel.clearError()
-                },
+                value = uiState.password,
+                onValueChange = { onEvent(RegisterEvent.OnPasswordChange(it)) },
                 label = { Text("Password") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = PasswordVisualTransformation(),
                 singleLine = true,
                 enabled = !uiState.isLoading,
                 isError = uiState.error?.contains("password", ignoreCase = true) == true,
-                supportingText = if (password.isNotEmpty() && password.length < 6) {
+                supportingText = if (uiState.password.isNotEmpty() && uiState.password.length < 6) {
                     { Text("Password must be at least 6 characters") }
                 } else null
             )
@@ -134,18 +123,15 @@ fun RegisterScreen(
 
             // Confirm Password Field
             OutlinedTextField(
-                value = confirmPassword,
-                onValueChange = {
-                    confirmPassword = it
-                    viewModel.clearError()
-                },
+                value = uiState.confirmPassword,
+                onValueChange = { onEvent(RegisterEvent.OnConfirmPasswordChange(it)) },
                 label = { Text("Confirm Password") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = PasswordVisualTransformation(),
                 singleLine = true,
                 enabled = !uiState.isLoading,
-                isError = (confirmPassword.isNotEmpty() && password != confirmPassword),
-                supportingText = if (confirmPassword.isNotEmpty() && password != confirmPassword) {
+                isError = (uiState.confirmPassword.isNotEmpty() && uiState.password != uiState.confirmPassword),
+                supportingText = if (uiState.confirmPassword.isNotEmpty() && uiState.password != uiState.confirmPassword) {
                     { Text("Passwords do not match") }
                 } else null
             )
@@ -154,11 +140,8 @@ fun RegisterScreen(
 
             // Bio Field (Optional)
             OutlinedTextField(
-                value = bio,
-                onValueChange = {
-                    bio = it
-                    viewModel.clearError()
-                },
+                value = uiState.bio,
+                onValueChange = { onEvent(RegisterEvent.OnBioChange(it)) },
                 label = { Text("Bio (Optional)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 singleLine = false,
@@ -174,18 +157,14 @@ fun RegisterScreen(
                 )
             } else {
                 Button(
-                    onClick = {
-                        if (password == confirmPassword) {
-                            viewModel.register(email, username, password, bio)
-                        }
-                    },
+                    onClick = { onEvent(RegisterEvent.OnRegisterClick) },
                     enabled = !uiState.isLoading &&
-                            email.isNotBlank() &&
-                            username.isNotBlank() &&
-                            password.isNotBlank() &&
-                            confirmPassword.isNotBlank() &&
-                            password == confirmPassword &&
-                            password.length >= 6,
+                            uiState.email.isNotBlank() &&
+                            uiState.username.isNotBlank() &&
+                            uiState.password.isNotBlank() &&
+                            uiState.confirmPassword.isNotBlank() &&
+                            uiState.password == uiState.confirmPassword &&
+                            uiState.password.length >= 6,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Register")
@@ -207,7 +186,7 @@ fun RegisterScreen(
             }
 
             TextButton(
-                onClick = onNavigateToLogin,
+                onClick = { onEvent(RegisterEvent.OnLoginClick) },
                 enabled = !uiState.isLoading
             ) {
                 Text("Already have an account? Login")

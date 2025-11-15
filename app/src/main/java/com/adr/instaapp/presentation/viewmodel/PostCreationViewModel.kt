@@ -2,9 +2,9 @@ package com.adr.instaapp.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.adr.instaapp.domain.model.Post
 import com.adr.instaapp.domain.usecase.CreatePostParams
 import com.adr.instaapp.domain.usecase.CreatePostUseCase
+import com.adr.instaapp.presentation.screen.PostCreationUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -49,7 +49,6 @@ class PostCreationViewModel(
                         _uiState.value = _uiState.value.copy(
                             isCreating = false,
                             isCreated = true,
-                            createdPost = createdPost,
                             error = null
                         )
                     },
@@ -87,12 +86,4 @@ class PostCreationViewModel(
         )
         return randomImages.random()
     }
-
-    data class PostCreationUiState(
-        val caption: String = "",
-        val isCreating: Boolean = false,
-        val isCreated: Boolean = false,
-        val createdPost: Post? = null,
-        val error: String? = null
-    )
 }

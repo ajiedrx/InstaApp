@@ -28,25 +28,34 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.adr.instaapp.presentation.viewmodel.PostCreationViewModel
+
+data class PostCreationUiState(
+    val isCreating: Boolean = false,
+    val isCreated: Boolean = false,
+    val caption: String = "",
+    val error: String? = null
+)
+
+sealed interface PostCreationEvent {
+    data object OnCreatePost : PostCreationEvent
+    data object OnNavigateBack : PostCreationEvent
+    data class OnCaptionChange(val caption: String) : PostCreationEvent
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostCreationScreen(
-    viewModel: PostCreationViewModel,
+    uiState: PostCreationUiState,
+    onEvent: (PostCreationEvent) -> Unit,
     onPostCreated: () -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
     // Handle post creation success
     LaunchedEffect(uiState.isCreated) {
         if (uiState.isCreated) {
@@ -97,7 +106,7 @@ fun PostCreationScreen(
             // Caption Input
             OutlinedTextField(
                 value = uiState.caption,
-                onValueChange = viewModel::updateCaption,
+                onValueChange = { onEvent(PostCreationEvent.OnCaptionChange(it)) },
                 placeholder = { Text("Write a caption...") },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3,
@@ -109,7 +118,7 @@ fun PostCreationScreen(
 
             // Create Post Button
             Button(
-                onClick = viewModel::createPost,
+                onClick = { onEvent(PostCreationEvent.OnCreatePost) },
                 enabled = uiState.caption.isNotBlank() && !uiState.isCreating,
                 modifier = Modifier.fillMaxWidth()
             ) {

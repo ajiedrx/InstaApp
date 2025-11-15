@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.adr.instaapp.domain.usecase.RegisterParams
 import com.adr.instaapp.domain.usecase.RegisterUseCase
+import com.adr.instaapp.presentation.screen.RegisterUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -50,6 +51,26 @@ class RegisterViewModel(
         }
     }
 
+    fun updateEmail(email: String) {
+        _uiState.value = _uiState.value.copy(email = email)
+    }
+
+    fun updateUsername(username: String) {
+        _uiState.value = _uiState.value.copy(username = username)
+    }
+
+    fun updatePassword(password: String) {
+        _uiState.value = _uiState.value.copy(password = password)
+    }
+
+    fun updateConfirmPassword(confirmPassword: String) {
+        _uiState.value = _uiState.value.copy(confirmPassword = confirmPassword)
+    }
+
+    fun updateBio(bio: String) {
+        _uiState.value = _uiState.value.copy(bio = bio)
+    }
+
     fun onNavigationHandled() {
         _navigateToMain.value = false
     }
@@ -57,9 +78,4 @@ class RegisterViewModel(
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }
-
-    data class RegisterUiState(
-        val isLoading: Boolean = false,
-        val error: String? = null
-    )
 }

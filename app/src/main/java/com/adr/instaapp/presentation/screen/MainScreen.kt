@@ -10,6 +10,8 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -51,8 +53,22 @@ fun MainScreen(
         ) {
             composable("feed") {
                 val feedViewModel: FeedViewModel = koinViewModel()
+                val uiState by feedViewModel.uiState.collectAsState()
+
+                LaunchedEffect(Unit) {
+                    // Update current user in feedViewModel if needed
+                }
+                
                 FeedScreen(
-                    viewModel = feedViewModel,
+                    uiState = uiState,
+                    onEvent = { event ->
+                        when (event) {
+                            is FeedEvent.OnRefresh -> feedViewModel.refresh()
+                            is FeedEvent.OnLikePost -> feedViewModel.likePost(event.postId)
+                            is FeedEvent.OnDeletePost -> feedViewModel.deletePost(event.postId)
+                            is FeedEvent.OnCommentClick -> onNavigateToPostDetail(event.postId)
+                        }
+                    },
                     onNavigateToPostDetail = onNavigateToPostDetail
                 )
             }

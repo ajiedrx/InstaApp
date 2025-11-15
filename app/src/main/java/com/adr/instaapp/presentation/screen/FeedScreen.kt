@@ -28,7 +28,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,15 +39,29 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.adr.instaapp.presentation.viewmodel.CommentViewModel
-import com.adr.instaapp.presentation.viewmodel.FeedViewModel
 import org.koin.androidx.compose.koinViewModel
+
+data class FeedUiState(
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val posts: List<com.adr.instaapp.domain.model.Post> = emptyList(),
+    val currentUser: com.adr.instaapp.domain.model.User? = null
+)
+
+sealed interface FeedEvent {
+    data object OnRefresh : FeedEvent
+    data class OnLikePost(val postId: String) : FeedEvent
+    data class OnDeletePost(val postId: String) : FeedEvent
+    data class OnCommentClick(val postId: String) : FeedEvent
+}
 
 @Composable
 fun FeedScreen(
-    viewModel: FeedViewModel,
-    onNavigateToPostDetail: (String) -> Unit = {}
+    uiState: FeedUiState,
+    onEvent: (FeedEvent) -> Unit,
+    onNavigateToPostDetail: (String) -> Unit = {},
+    currentUser: com.adr.instaapp.domain.model.User? = null
 ) {
-    val uiState by viewModel.uiState.collectAsState()
     val commentViewModel: CommentViewModel = koinViewModel()
 
     Box(
@@ -70,7 +83,7 @@ fun FeedScreen(
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { viewModel.refresh() }) {
+                    Button(onClick = { onEvent(FeedEvent.OnRefresh) }) {
                         Text("Retry")
                     }
                 }
@@ -91,13 +104,14 @@ fun FeedScreen(
                     items(uiState.posts) { post ->
                         PostItem(
                             post = post,
-                            isOwnedByCurrentUser = viewModel.isPostOwnedByCurrentUser(post),
-                            onLikeClick = { viewModel.likePost(post.id) },
+                            isOwnedByCurrentUser = currentUser?.id == post.author.id,
+                            onLikeClick = { onEvent(FeedEvent.OnLikePost(post.id)) },
                             onCommentClick = {
                                 selectedPostId = post.id
                                 showComments = true
+                                onEvent(FeedEvent.OnCommentClick(post.id))
                             },
-                            onDeleteClick = { viewModel.deletePost(post.id) }
+                            onDeleteClick = { onEvent(FeedEvent.OnDeletePost(post.id)) }
                         )
                     }
                 }

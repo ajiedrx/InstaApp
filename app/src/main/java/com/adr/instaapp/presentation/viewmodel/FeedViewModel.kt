@@ -6,6 +6,7 @@ import com.adr.instaapp.domain.usecase.DeletePostUseCase
 import com.adr.instaapp.domain.usecase.GetCurrentUserUseCase
 import com.adr.instaapp.domain.usecase.GetFeedPostsUseCase
 import com.adr.instaapp.domain.usecase.LikePostUseCase
+import com.adr.instaapp.presentation.screen.FeedUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -91,9 +92,7 @@ class FeedViewModel(
         loadFeedPosts()
     }
 
-    data class FeedUiState(
-        val isLoading: Boolean = false,
-        val posts: List<com.adr.instaapp.domain.model.Post> = emptyList(),
-        val error: String? = null
-    )
+    fun updateCurrentUser(currentUser: com.adr.instaapp.domain.model.User?) {
+        _uiState.value = _uiState.value.copy(currentUser = currentUser)
+    }
 }

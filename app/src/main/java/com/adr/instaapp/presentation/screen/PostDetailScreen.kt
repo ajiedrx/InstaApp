@@ -27,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,23 +38,36 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.adr.instaapp.presentation.viewmodel.CommentViewModel
-import com.adr.instaapp.presentation.viewmodel.PostDetailViewModel
 import org.koin.androidx.compose.koinViewModel
+
+data class PostDetailUiState(
+    val isLoading: Boolean = false,
+    val post: com.adr.instaapp.domain.model.Post? = null,
+    val error: String? = null,
+    val currentUser: com.adr.instaapp.domain.model.User? = null
+)
+
+sealed interface PostDetailEvent {
+    data class OnLoadPost(val postId: String) : PostDetailEvent
+    data class OnLikePost(val postId: String) : PostDetailEvent
+    data class OnDeletePost(val postId: String) : PostDetailEvent
+    data class OnCommentClick(val postId: String) : PostDetailEvent
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostDetailScreen(
-    viewModel: PostDetailViewModel,
+    uiState: PostDetailUiState,
+    onEvent: (PostDetailEvent) -> Unit,
     postId: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    currentUser: com.adr.instaapp.domain.model.User? = null
 ) {
-    val uiState by viewModel.uiState.collectAsState()
     val commentViewModel: CommentViewModel = koinViewModel()
-
     var showComments by remember { mutableStateOf(false) }
 
     LaunchedEffect(postId) {
-        viewModel.loadPost(postId)
+        onEvent(PostDetailEvent.OnLoadPost(postId))
     }
 
     Scaffold(
@@ -94,10 +106,13 @@ fun PostDetailScreen(
                             item {
                                 PostDetailContent(
                                     postDetail = post,
-                                    isOwnedByCurrentUser = viewModel.isPostOwnedByCurrentUser(post),
-                                    onLikeClick = { viewModel.likePost(post.id) },
-                                    onCommentClick = { showComments = true },
-                                    onDeleteClick = { viewModel.deletePost(post.id) }
+                                    isOwnedByCurrentUser = currentUser?.id == post.author.id,
+                                    onLikeClick = { onEvent(PostDetailEvent.OnLikePost(post.id)) },
+                                    onCommentClick = {
+                                        showComments = true
+                                        onEvent(PostDetailEvent.OnCommentClick(post.id))
+                                    },
+                                    onDeleteClick = { onEvent(PostDetailEvent.OnDeletePost(post.id)) }
                                 )
                             }
                         }

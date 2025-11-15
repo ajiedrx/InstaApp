@@ -13,7 +13,7 @@ import com.adr.instaapp.domain.usecase.UpdateCommentParams
 import com.adr.instaapp.domain.usecase.UpdateCommentUseCase
 import com.adr.instaapp.domain.usecase.UpdatePostLikeParams
 import com.adr.instaapp.domain.usecase.UpdatePostLikeUseCase
-import com.adr.instaapp.presentation.state.PostDetailUiState
+import com.adr.instaapp.presentation.screen.PostDetailUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -50,7 +50,6 @@ class PostDetailViewModel(
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         post = post,
-                        comments = commentsResult.getOrNull() ?: emptyList(),
                         currentUser = currentUser,
                         error = null
                     )
