@@ -37,14 +37,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.adr.instaapp.presentation.viewmodel.CommentViewModel
-import org.koin.androidx.compose.koinViewModel
+import com.adr.instaapp.domain.model.Post
+import com.adr.instaapp.domain.model.User
 
 data class PostDetailUiState(
     val isLoading: Boolean = false,
-    val post: com.adr.instaapp.domain.model.Post? = null,
+    val post: Post? = null,
     val error: String? = null,
-    val currentUser: com.adr.instaapp.domain.model.User? = null
+    val currentUser: User? = null
 )
 
 sealed interface PostDetailEvent {
@@ -60,10 +60,8 @@ fun PostDetailScreen(
     uiState: PostDetailUiState,
     onEvent: (PostDetailEvent) -> Unit,
     postId: String,
-    onBackClick: () -> Unit,
-    currentUser: com.adr.instaapp.domain.model.User? = null
+    onBackClick: () -> Unit
 ) {
-    val commentViewModel: CommentViewModel = koinViewModel()
     var showComments by remember { mutableStateOf(false) }
 
     LaunchedEffect(postId) {
@@ -101,18 +99,16 @@ fun PostDetailScreen(
                 }
 
                 uiState.post != null -> {
-                    uiState.post?.let { post ->
+                    uiState.post.let { post ->
                         LazyColumn {
                             item {
                                 PostDetailContent(
                                     postDetail = post,
-                                    isOwnedByCurrentUser = currentUser?.id == post.author.id,
                                     onLikeClick = { onEvent(PostDetailEvent.OnLikePost(post.id)) },
                                     onCommentClick = {
                                         showComments = true
                                         onEvent(PostDetailEvent.OnCommentClick(post.id))
-                                    },
-                                    onDeleteClick = { onEvent(PostDetailEvent.OnDeletePost(post.id)) }
+                                    }
                                 )
                             }
                         }
@@ -136,7 +132,6 @@ fun PostDetailScreen(
                 val post = uiState.post
                 if (post != null) {
                     CommentBottomSheet(
-                        viewModel = commentViewModel,
                         postId = post.id,
                         onDismiss = { showComments = false }
                     )
@@ -149,11 +144,9 @@ fun PostDetailScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PostDetailContent(
-    postDetail: com.adr.instaapp.domain.model.Post,
-    isOwnedByCurrentUser: Boolean,
+    postDetail: Post,
     onLikeClick: () -> Unit,
-    onCommentClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onCommentClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()

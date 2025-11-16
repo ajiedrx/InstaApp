@@ -10,7 +10,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -54,10 +53,6 @@ fun MainScreen(
             composable("feed") {
                 val feedViewModel: FeedViewModel = koinViewModel()
                 val uiState by feedViewModel.uiState.collectAsState()
-
-                LaunchedEffect(Unit) {
-                    // Update current user in feedViewModel if needed
-                }
                 
                 FeedScreen(
                     uiState = uiState,
@@ -68,8 +63,7 @@ fun MainScreen(
                             is FeedEvent.OnDeletePost -> feedViewModel.deletePost(event.postId)
                             is FeedEvent.OnCommentClick -> onNavigateToPostDetail(event.postId)
                         }
-                    },
-                    onNavigateToPostDetail = onNavigateToPostDetail
+                    }
                 )
             }
             composable("profile") {

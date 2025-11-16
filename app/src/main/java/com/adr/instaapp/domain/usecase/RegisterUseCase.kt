@@ -1,5 +1,6 @@
 package com.adr.instaapp.domain.usecase
 
+import com.adr.instaapp.data.repository.UserRepositoryImpl
 import com.adr.instaapp.domain.base.UseCase
 import com.adr.instaapp.domain.model.User
 import com.adr.instaapp.domain.repository.UserRepository
@@ -35,7 +36,7 @@ class RegisterUseCase(
 
         // Cast to UserRepositoryImpl to access registerWithEmail method
         val userRepositoryImpl =
-            userRepository as? com.adr.instaapp.data.repository.UserRepositoryImpl
+            userRepository as? UserRepositoryImpl
                 ?: return Result.failure(Exception("Invalid repository implementation"))
 
         return userRepositoryImpl.registerWithEmail(

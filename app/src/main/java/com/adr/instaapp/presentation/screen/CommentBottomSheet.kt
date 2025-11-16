@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.adr.instaapp.domain.model.Comment
 import com.adr.instaapp.presentation.viewmodel.CommentViewModel
+import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -60,10 +61,10 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentBottomSheet(
-    viewModel: CommentViewModel,
+    modifier: Modifier = Modifier,
+    viewModel: CommentViewModel = koinViewModel(),
     postId: String,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -432,12 +433,12 @@ private fun ReplyItem(
 
 @Composable
 private fun CommentInput(
+    modifier: Modifier = Modifier,
     content: String,
     onContentChange: (String) -> Unit,
     onSend: () -> Unit,
     isLoading: Boolean,
     placeholder: String = "Add a comment...",
-    modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),

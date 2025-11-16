@@ -43,10 +43,7 @@ val presentationModule = module {
             getCurrentUserUseCase = get(),
             updatePostLikeUseCase = get(),
             deletePostUseCase = get(),
-            getCommentsByPostIdUseCase = get(),
-            createCommentUseCase = get(),
-            updateCommentUseCase = get(),
-            deleteCommentUseCase = get()
+            getCommentsByPostIdUseCase = get()
         )
     }
 }

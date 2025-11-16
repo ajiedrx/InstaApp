@@ -2,6 +2,7 @@ package com.adr.instaapp.data.local
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.adr.instaapp.data.model.UserCredentials
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -24,7 +25,7 @@ class AuthPreferencesManager(context: Context) {
     /**
      * Save a new user to SharedPreferences
      */
-    suspend fun saveUser(userCredentials: UserCredentials): Boolean {
+    fun saveUser(userCredentials: UserCredentials): Boolean {
         val currentUsers = getAllUsers().toMutableList()
 
         // Check if username or email already exists
@@ -68,13 +69,6 @@ class AuthPreferencesManager(context: Context) {
     }
 
     /**
-     * Find user by email
-     */
-    fun findUserByEmail(email: String): UserCredentials? {
-        return getAllUsers().find { it.email == email }
-    }
-
-    /**
      * Check if username exists
      */
     fun isUsernameTaken(username: String): Boolean {
@@ -100,9 +94,9 @@ class AuthPreferencesManager(context: Context) {
      * Save current logged-in user ID
      */
     fun saveCurrentUserId(userId: Long) {
-        sharedPreferences.edit()
-            .putLong(KEY_CURRENT_USER_ID, userId)
-            .apply()
+        sharedPreferences.edit {
+            putLong(KEY_CURRENT_USER_ID, userId)
+        }
     }
 
     /**
@@ -125,17 +119,9 @@ class AuthPreferencesManager(context: Context) {
      * Clear current user session (logout)
      */
     fun clearCurrentUser() {
-        sharedPreferences.edit()
-            .remove(KEY_CURRENT_USER_ID)
-            .apply()
+        sharedPreferences.edit {
+            remove(KEY_CURRENT_USER_ID)
+        }
     }
 
-    /**
-     * Clear all data (for testing purposes)
-     */
-    fun clearAllData() {
-        sharedPreferences.edit()
-            .clear()
-            .apply()
-    }
 }

@@ -202,8 +202,7 @@ fun InstaAppNavigation(
                     val postDetailViewModel: PostDetailViewModel = koinViewModel()
                     val postId = backStackEntry.arguments?.getString("postId") ?: ""
                     val uiState by postDetailViewModel.uiState.collectAsState()
-                    val currentUser by authViewModel.currentUser.collectAsState()
-                    
+
                     PostDetailScreen(
                         uiState = uiState,
                         onEvent = { event ->
@@ -219,8 +218,7 @@ fun InstaAppNavigation(
                             }
                         },
                         postId = postId,
-                        onBackClick = { navController.navigateUp() },
-                        currentUser = currentUser
+                        onBackClick = { navController.navigateUp() }
                     )
                 }
             }

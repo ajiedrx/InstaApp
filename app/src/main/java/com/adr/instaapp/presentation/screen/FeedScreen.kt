@@ -38,14 +38,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.adr.instaapp.presentation.viewmodel.CommentViewModel
-import org.koin.androidx.compose.koinViewModel
+import com.adr.instaapp.domain.model.Post
+import com.adr.instaapp.domain.model.User
 
 data class FeedUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
-    val posts: List<com.adr.instaapp.domain.model.Post> = emptyList(),
-    val currentUser: com.adr.instaapp.domain.model.User? = null
+    val posts: List<Post> = emptyList(),
+    val currentUser: User? = null
 )
 
 sealed interface FeedEvent {
@@ -59,11 +59,8 @@ sealed interface FeedEvent {
 fun FeedScreen(
     uiState: FeedUiState,
     onEvent: (FeedEvent) -> Unit,
-    onNavigateToPostDetail: (String) -> Unit = {},
-    currentUser: com.adr.instaapp.domain.model.User? = null
+    currentUser: User? = null
 ) {
-    val commentViewModel: CommentViewModel = koinViewModel()
-
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -118,7 +115,6 @@ fun FeedScreen(
 
                 if (showComments) {
                     CommentBottomSheet(
-                        viewModel = commentViewModel,
                         postId = selectedPostId,
                         onDismiss = { showComments = false }
                     )
@@ -130,7 +126,7 @@ fun FeedScreen(
 
 @Composable
 private fun PostItem(
-    post: com.adr.instaapp.domain.model.Post,
+    post: Post,
     isOwnedByCurrentUser: Boolean,
     onLikeClick: () -> Unit,
     onCommentClick: () -> Unit,
