@@ -169,7 +169,7 @@ class UserRepositoryImpl(
         return User(
             id = credentials.id.toString(),
             username = credentials.username,
-            profilePictureUrl = credentials.profileImageUrl,
+            profilePictureUrl = "https://picsum.photos/seed/user1/200/200",
             bio = credentials.bio,
             followersCount = 125,
             followingCount = 98,
