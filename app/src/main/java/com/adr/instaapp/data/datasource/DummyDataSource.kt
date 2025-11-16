@@ -60,7 +60,7 @@ class DummyDataSource {
     )
 
     // User's posts (4 posts for logged-in user)
-    private val userPosts = mutableListOf<Post>(
+    private val userPosts = mutableListOf(
         Post(
             id = "post_1",
             author = currentUser,
@@ -155,7 +155,10 @@ class DummyDataSource {
 
     fun getUserPosts(): List<Post> = userPosts.toList()
 
-    fun getFeedPosts(): List<Post> = feedPosts.toList()
+    fun getFeedPosts(): List<Post> {
+        val allPosts = userPosts + feedPosts
+        return allPosts.sortedByDescending { it.timestamp }
+    }
 
     fun getPostById(postId: String): Post? {
         return userPosts.find { it.id == postId } ?: feedPosts.find { it.id == postId }
@@ -179,7 +182,9 @@ class DummyDataSource {
     fun deleteComment(commentId: String, postId: String): Boolean {
         val postComments = comments[postId] ?: return false
         val removed = postComments.removeIf { it.id == commentId }
+
         if (removed) {
+            postComments.removeIf { it.parentId == commentId }
             updatePostCommentCount(postId)
         }
         return removed

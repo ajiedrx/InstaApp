@@ -103,7 +103,7 @@ class PostRepositoryImpl(
 
             val success = dataSource.createPost(newPost)
             if (success) {
-                refreshUserPosts()
+                refreshAllPosts() // Refresh both feed and user posts
                 Result.success(newPost)
             } else {
                 Result.failure(Exception("Failed to create post"))
@@ -118,7 +118,7 @@ class PostRepositoryImpl(
             dataSource.simulateNetworkDelay()
             val success = dataSource.updatePost(postId, caption)
             if (success) {
-                refreshUserPosts()
+                refreshAllPosts() // Refresh both feed and user posts
                 val post = dataSource.getPostById(postId)
                 if (post != null) {
                     Result.success(post)
@@ -138,7 +138,7 @@ class PostRepositoryImpl(
             dataSource.simulateNetworkDelay()
             val success = dataSource.deletePost(postId)
             if (success) {
-                refreshUserPosts()
+                refreshAllPosts() // Refresh both feed and user posts
                 Result.success(Unit)
             } else {
                 Result.failure(Exception("Post not found"))
