@@ -49,7 +49,6 @@ This project follows **Clean Architecture** principles with clear separation of 
 ### 🔐 Authentication
 
 - User registration and login
-- Secure token-based authentication
 - Persistent session management
 
 ### 📸 Post Management
