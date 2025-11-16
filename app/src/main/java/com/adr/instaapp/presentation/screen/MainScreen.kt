@@ -61,7 +61,8 @@ fun MainScreen(
                             is FeedEvent.OnRefresh -> feedViewModel.refresh()
                             is FeedEvent.OnLikePost -> feedViewModel.likePost(event.postId)
                             is FeedEvent.OnDeletePost -> feedViewModel.deletePost(event.postId)
-                            is FeedEvent.OnCommentClick -> onNavigateToPostDetail(event.postId)
+                            is FeedEvent.OnCommentClick -> { /* Handled by CommentBottomSheet */
+                            }
                         }
                     }
                 )
